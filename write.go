@@ -268,28 +268,30 @@ func (wb *writeBuffer) writeFetchRequestV10(correlationID int32, clientID, topic
 		4 + // partition max bytes
 		4 // forgotten topics data
 
-	h.writeTo(wb)
-	wb.writeInt32(-1) // replica ID
-	wb.writeInt32(milliseconds(maxWait))
-	wb.writeInt32(int32(minBytes))
-	wb.writeInt32(int32(maxBytes))
-	wb.writeInt8(isolationLevel) // isolation level 0 - read uncommitted
-	wb.writeInt32(0)             //FIXME
-	wb.writeInt32(-1)            //FIXME
+	h.writeTo(wb)                        // 写入头部
+	wb.writeInt32(-1)                    // 4B 消费者不用填， 从broker 向主broker 获取时才要填 // replica ID
+	wb.writeInt32(milliseconds(maxWait)) // 4B 超时
+	wb.writeInt32(int32(minBytes))       // 4B 响应里 最小的累积字节数
+	wb.writeInt32(int32(maxBytes))       // 4B 最大字节数
+	wb.writeInt8(isolationLevel)         // 1B 接口入参中配置 // isolation level 0 - read uncommitted
+	wb.writeInt32(0)                     // 4B fetch session id     //FIXME
+	wb.writeInt32(-1)                    // 4B session epoch, 用于在一个session里顺序化请求     //FIXME
 
 	// topic array
-	wb.writeArrayLen(1)
-	wb.writeString(topic)
+	wb.writeArrayLen(1)   // 4B 只发一个topic的
+	wb.writeString(topic) // 变长的string，topic name
 
 	// partition array
-	wb.writeArrayLen(1)
-	wb.writeInt32(partition)
-	wb.writeInt32(-1) //FIXME
-	wb.writeInt64(offset)
-	wb.writeInt64(int64(0)) // log start offset only used when is sent by follower
-	wb.writeInt32(int32(maxBytes))
+	// partitions
+	wb.writeArrayLen(1)            // 4B 只发到一个partition
+	wb.writeInt32(partition)       // 4B partition index
+	wb.writeInt32(-1)              // 4B current_leader_epoch 此partition的当前leader epoch //FIXME
+	wb.writeInt64(offset)          // 4B fetch_offset
+	wb.writeInt64(int64(0))        // 4B log_start_offset // log start offset only used when is sent by follower
+	wb.writeInt32(int32(maxBytes)) // 4B partition_max_bytes 从此partition拿出的最大字节数，因为只fetch一个topic下的一个partition， 所以和上面的maxBytes的值时一样的
 
 	// forgotten topics array
+	// forgetten_topics_data 用于 增量fetch请求(这时partitions不需要，)
 	wb.writeArrayLen(0) // forgotten topics not supported yet
 
 	return wb.Flush()

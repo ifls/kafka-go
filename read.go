@@ -500,23 +500,24 @@ func readFetchResponseHeaderV10(r *bufio.Reader, size int) (throttle int32, wate
 	var n int32
 	var errorCode int16
 	type AbortedTransaction struct {
-		ProducerId  int64
-		FirstOffset int64
+		ProducerId  int64 // 8B 生产者id
+		FirstOffset int64 // 被中断事物的开始偏移量
 	}
-	var p struct {
-		Partition           int32
-		ErrorCode           int16
-		HighwaterMarkOffset int64
-		LastStableOffset    int64
-		LogStartOffset      int64
+	var p struct { // 根据协议， 字段的顺序必须是这样固定的
+		Partition           int32 // 4B partition index
+		ErrorCode           int16 // 2B error_code
+		HighwaterMarkOffset int64 // 8B current high water mark
+		LastStableOffset    int64 // 8B LSO of partition, 最后的偏移
+		LogStartOffset      int64 // 8B 当前的日志偏移
 	}
 	var messageSetSize int32
 	var abortedTransactions []AbortedTransaction
 
+	// 4B throttle_time_ms 通勤时间
 	if remain, err = readInt32(r, size, &throttle); err != nil {
 		return
 	}
-
+	// 2B error_code
 	if remain, err = readInt16(r, remain, &errorCode); err != nil {
 		return
 	}
@@ -525,17 +526,18 @@ func readFetchResponseHeaderV10(r *bufio.Reader, size int) (throttle int32, wate
 		return
 	}
 
+	// 4B fetch_session_id, 如果不过fetch session里的请求，响应里这个字段的值为0
 	if remain, err = discardInt32(r, remain); err != nil {
 		return
 	}
-
+	// 4B response的数量
 	if remain, err = readInt32(r, remain, &n); err != nil {
 		return
 	}
 
 	// This error should never trigger, unless there's a bug in the kafka client
 	// or server.
-	if n != 1 {
+	if n != 1 { // 请求里只从一个topic拿，这里返回的n必须是1
 		err = fmt.Errorf("1 kafka topic was expected in the fetch response but the client received %d", n)
 		return
 	}
@@ -543,26 +545,29 @@ func readFetchResponseHeaderV10(r *bufio.Reader, size int) (throttle int32, wate
 	// We ignore the topic name because we've requests messages for a single
 	// topic, unless there's a bug in the kafka server we will have received
 	// the name of the topic that we requested.
+	// 丢弃 string topic_name
 	if remain, err = discardString(r, remain); err != nil {
 		return
 	}
-
+	// partition的数量
 	if remain, err = readInt32(r, remain, &n); err != nil {
 		return
 	}
 
 	// This error should never trigger, unless there's a bug in the kafka client
 	// or server.
-	if n != 1 {
+	if n != 1 { // 请求里只从一个partition拿，这里返回的n必须是1
 		err = fmt.Errorf("1 kafka partition was expected in the fetch response but the client received %d", n)
 		return
 	}
 
+	// 反射的方式 读partition
 	if remain, err = read(r, remain, &p); err != nil {
 		return
 	}
 
 	var abortedTransactionLen int
+	// 读取 len(aborted_transactions)
 	if remain, err = readArrayLen(r, remain, &abortedTransactionLen); err != nil {
 		return
 	}
@@ -571,6 +576,7 @@ func readFetchResponseHeaderV10(r *bufio.Reader, size int) (throttle int32, wate
 		abortedTransactions = nil
 	} else {
 		abortedTransactions = make([]AbortedTransaction, abortedTransactionLen)
+		// 读取所有的 aborted_transaction
 		for i := 0; i < abortedTransactionLen; i++ {
 			if remain, err = read(r, remain, &abortedTransactions[i]); err != nil {
 				return
