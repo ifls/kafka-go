@@ -46,10 +46,10 @@ const (
 	fetch                       apiKey = 1
 	listOffsets                 apiKey = 2
 	metadata                    apiKey = 3
-	leaderAndIsr                apiKey = 4
-	stopReplica                 apiKey = 5
-	updateMetadata              apiKey = 6
-	controlledShutdown          apiKey = 7
+	leaderAndIsr                apiKey = 4 // 内部api， client没用到
+	stopReplica                 apiKey = 5 // client没用到
+	updateMetadata              apiKey = 6 // client没用到
+	controlledShutdown          apiKey = 7 // client没用到
 	offsetCommit                apiKey = 8
 	offsetFetch                 apiKey = 9
 	findCoordinator             apiKey = 10
@@ -63,33 +63,33 @@ const (
 	apiVersions                 apiKey = 18
 	createTopics                apiKey = 19
 	deleteTopics                apiKey = 20
-	deleteRecords               apiKey = 21
-	initProducerId              apiKey = 22
-	offsetForLeaderEpoch        apiKey = 23
-	addPartitionsToTxn          apiKey = 24
-	addOffsetsToTxn             apiKey = 25
-	endTxn                      apiKey = 26
-	writeTxnMarkers             apiKey = 27
-	txnOffsetCommit             apiKey = 28
-	describeAcls                apiKey = 29
-	createAcls                  apiKey = 30
-	deleteAcls                  apiKey = 31
-	describeConfigs             apiKey = 32
-	alterConfigs                apiKey = 33
-	alterReplicaLogDirs         apiKey = 34
-	describeLogDirs             apiKey = 35
+	deleteRecords               apiKey = 21 // client没用到
+	initProducerId              apiKey = 22 // client没用到
+	offsetForLeaderEpoch        apiKey = 23 // client没用到
+	addPartitionsToTxn          apiKey = 24 // client没用到
+	addOffsetsToTxn             apiKey = 25 // client没用到
+	endTxn                      apiKey = 26 // client没用到
+	writeTxnMarkers             apiKey = 27 // client没用到
+	txnOffsetCommit             apiKey = 28 // client没用到
+	describeAcls                apiKey = 29 // client没用到
+	createAcls                  apiKey = 30 // client没用到
+	deleteAcls                  apiKey = 31 // client没用到
+	describeConfigs             apiKey = 32 // client没用到
+	alterConfigs                apiKey = 33 // client没用到
+	alterReplicaLogDirs         apiKey = 34 // client没用到
+	describeLogDirs             apiKey = 35 // client没用到
 	saslAuthenticate            apiKey = 36
-	createPartitions            apiKey = 37
-	createDelegationToken       apiKey = 38
-	renewDelegationToken        apiKey = 39
-	expireDelegationToken       apiKey = 40
-	describeDelegationToken     apiKey = 41
-	deleteGroups                apiKey = 42
-	electLeaders                apiKey = 43
-	incrementalAlterConfigs     apiKey = 44
-	alterPartitionReassignments apiKey = 45
-	listPartitionReassignments  apiKey = 46
-	offsetDelete                apiKey = 47
+	createPartitions            apiKey = 37 // client没用到
+	createDelegationToken       apiKey = 38 // client没用到
+	renewDelegationToken        apiKey = 39 // client没用到
+	expireDelegationToken       apiKey = 40 // client没用到
+	describeDelegationToken     apiKey = 41 // client没用到
+	deleteGroups                apiKey = 42 // client没用到
+	electLeaders                apiKey = 43 // client没用到
+	incrementalAlterConfigs     apiKey = 44 // client没用到
+	alterPartitionReassignments apiKey = 45 // client没用到
+	listPartitionReassignments  apiKey = 46 // client没用到
+	offsetDelete                apiKey = 47 // client没用到
 )
 
 func (k apiKey) String() string {
@@ -113,6 +113,7 @@ const (
 	v8  = 8
 	v9  = 9
 	v10 = 10
+	// 最新的 已经有v11了
 )
 
 var apiKeyStrings = [...]string{

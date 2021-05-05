@@ -52,33 +52,44 @@ func (k ApiKey) apiType() apiType {
 }
 
 const (
-	Produce            ApiKey = 0 // 发布消息 http://kafka.apache.org/protocol.html#The_Messages_Produce
-	Fetch              ApiKey = 1 // 获取消息
-	ListOffsets        ApiKey = 2 // 列举多个topic偏移量
-	Metadata           ApiKey = 3 // 获取元数据
-	LeaderAndIsr       ApiKey = 4 // 一个topic的指定partition的leader和isr，assignment replicas发生变动时，controller 向 broker发送的一种请求
-	StopReplica        ApiKey = 5 // 停止复制
-	UpdateMetadata     ApiKey = 6 // 更新元数据
-	ControlledShutdown ApiKey = 7 // kafka 服务器请求关闭下线
-	OffsetCommit       ApiKey = 8 // 偏移量提交
-	OffsetFetch        ApiKey = 9 // 获取偏移量
+	Produce ApiKey = 0 // 发布消息 http://kafka.apache.org/protocol.html#The_Messages_Produce
+	Fetch   ApiKey = 1 // 获取消息
+
+	ListOffsets  ApiKey = 2 // 列举多个topic偏移量
+	Metadata     ApiKey = 3 // 获取元数据
+	OffsetCommit ApiKey = 8 // 偏移量提交
+	OffsetFetch  ApiKey = 9 // 获取偏移量
 
 	// http://zhongmingmao.me/2019/09/10/kafka-consumer-manage-tcp-connection/
-	FindCoordinator ApiKey = 10 // 当消费者程序首次启动调用poll方法时，需要向Kafka集群（集群中的任意Broker）发送FindCoordinator请求
-	JoinGroup       ApiKey = 11 // 加入一个消费者组
-	Heartbeat       ApiKey = 12 // 组成员存活心跳， 超时会被踢出
-	LeaveGroup      ApiKey = 13 // 离开消费者组
-	SyncGroup       ApiKey = 14 // 组长使用此同步请求向当前组中的所有成员进行状态(例如分区信息)变更
-	DescribeGroups  ApiKey = 15 // 获取消费者组信息
-	ListGroups      ApiKey = 16 // admin 列举所有消费者组
-	SaslHandshake   ApiKey = 17 // Simple Authentication and Security Layer 握手认证
-	ApiVersions     ApiKey = 18 // 获取服务器支持的 指定 apikey的 版本
-	CreateTopics    ApiKey = 19 // 创建 topic
-	DeleteTopics    ApiKey = 20 // 删除topic
-	DeleteRecords   ApiKey = 21 // 删除记录
+	FindCoordinator  ApiKey = 10 // 当消费者程序首次启动调用poll方法时，需要向Kafka集群（集群中的任意Broker）发送FindCoordinator请求
+	JoinGroup        ApiKey = 11 // 加入一个消费者组
+	Heartbeat        ApiKey = 12 // 组成员存活心跳， 超时会被踢出
+	LeaveGroup       ApiKey = 13 // 离开消费者组
+	SyncGroup        ApiKey = 14 // 组长使用此同步请求向当前组中的所有成员进行状态(例如分区信息)变更
+	DescribeGroups   ApiKey = 15 // 获取消费者组信息
+	ListGroups       ApiKey = 16 // admin 列举所有消费者组
+	SaslHandshake    ApiKey = 17 // Simple Authentication and Security Layer 握手认证
+	SaslAuthenticate ApiKey = 36 // 和sasl握手有什么区别？？
+	ApiVersions      ApiKey = 18 // 获取服务器支持的 指定 apikey的 版本
+	CreateTopics     ApiKey = 19 // 创建 topic
+	DeleteTopics     ApiKey = 20 // 删除topic
 
+	// 下面这几个可能用的到
 	// 配合消息的 sequence id 做 发布者消息幂等 https://news.51cto.com/art/202008/622979.htm
-	InitProducerId       ApiKey = 22 // 生产者 client 向 broker 发起 InitProducerId request 请求一个 PID，后续发送的消息，都会带上这一个 PID 用于标明生产者的身份。
+	InitProducerId              ApiKey = 22 // 生产者 client 向 broker 发起 InitProducerId request 请求一个 PID，后续发送的消息，都会带上这一个 PID 用于标明生产者的身份。
+	DescribeConfigs             ApiKey = 32
+	AlterConfigs                ApiKey = 33
+	CreatePartitions            ApiKey = 37 // 创建分区
+	ElectLeaders                ApiKey = 43 // 内部api，重新选举leader
+	IncrementalAlterConfigs     ApiKey = 44
+	AlterPartitionReassignments ApiKey = 45
+
+	// 下面的没有用的
+	LeaderAndIsr         ApiKey = 4  // 内部api 一个topic的指定partition的leader和isr，assignment replicas发生变动时，controller 向 broker发送的一种请求
+	StopReplica          ApiKey = 5  // 停止复制
+	UpdateMetadata       ApiKey = 6  // 更新元数据
+	ControlledShutdown   ApiKey = 7  // kafka 服务器请求关闭下线
+	DeleteRecords        ApiKey = 21 // 删除记录
 	OffsetForLeaderEpoch ApiKey = 23 // 内部api broker 之间 同步offset
 
 	// 这个请求是在producer生产消息前先要向TransactionCoordinator 发送一个AddParitionToTxn的请求将自己要发送的数据的topicParitition告诉transactionCoordinator
@@ -92,26 +103,16 @@ const (
 	CreateAcls   ApiKey = 30
 	DeleteAcls   ApiKey = 31
 
-	DescribeConfigs     ApiKey = 32
-	AlterConfigs        ApiKey = 33
 	AlterReplicaLogDirs ApiKey = 34
 	DescribeLogDirs     ApiKey = 35
-	SaslAuthenticate    ApiKey = 36 // 和sasl握手有什么区别？？
-
-	CreatePartitions ApiKey = 37 // 创建分区
 
 	CreateDelegationToken   ApiKey = 38
 	RenewDelegationToken    ApiKey = 39
 	ExpireDelegationToken   ApiKey = 40
 	DescribeDelegationToken ApiKey = 41
 
-	DeleteGroups ApiKey = 42 //删除消费者组
-	ElectLeaders ApiKey = 43 // 内部api，重新选举leader
-
-	IncrementalAlterConfigs ApiKey = 44
-
-	AlterPartitionReassignments ApiKey = 45
-	ListPartitionReassignments  ApiKey = 46
+	DeleteGroups               ApiKey = 42 //删除消费者组
+	ListPartitionReassignments ApiKey = 46
 
 	OffsetDelete ApiKey = 47 // 删除偏移量
 
