@@ -183,10 +183,12 @@ func readArrayWith(r *bufio.Reader, sz int, cb func(*bufio.Reader, int) (int, er
 	var err error
 	var len int32
 
+	// 先读取 size
 	if sz, err = readInt32(r, sz, &len); err != nil {
 		return sz, err
 	}
 
+	// ResponseMessage => CorrelationId4B Response
 	for n := int(len); n > 0; n-- {
 		if sz, err = cb(r, sz); err != nil {
 			break

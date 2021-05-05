@@ -485,20 +485,30 @@ func (wb *writeBuffer) writeRecordBatch(attributes int16, size int32, count int,
 	wb.w = writerBackup
 
 	// actual write to the output buffer
-	wb.writeInt64(int64(0))
-	wb.writeInt32(int32(size - 12)) // 12 = batch length + base offset sizes
-	wb.writeInt32(-1)               // partition leader epoch
-	wb.writeInt8(2)                 // magic byte
-	wb.writeInt32(int32(cw.crc32))
+	wb.writeInt64(int64(0))         // baseOffset 8B
+	wb.writeInt32(int32(size - 12)) // batchLength 4B // 12 = batch length + base offset sizes
+	wb.writeInt32(-1)               // partitionLeaderEpoch 4B   // partition leader epoch
+	wb.writeInt8(2)                 // 魔数 1B 当前固定是2   // magic byte
+	wb.writeInt32(int32(cw.crc32))  // crc32校验码 4B
 
-	wb.writeInt16(attributes)
-	wb.writeInt32(lastOffsetDelta)
-	wb.writeInt64(baseTimestamp)
-	wb.writeInt64(lastTimestamp)
-	wb.writeInt64(producerID)
-	wb.writeInt16(producerEpoch)
-	wb.writeInt32(baseSequence)
-	wb.writeInt32(recordCount)
+	// 			bit 0~2:
+	//				0: no compression
+	//				1: gzip
+	//				2: snappy
+	//				3: lz4
+	//				4: zstd
+	//			bit 3: timestampType
+	//			bit 4: isTransactional (0 means not transactional)
+	//			bit 5: isControlBatch (0 means not a control batch)
+	//			bit 6~15: unused
+	wb.writeInt16(attributes)      // 2B, 值的含义如上
+	wb.writeInt32(lastOffsetDelta) // lastOffsetDelta 4B
+	wb.writeInt64(baseTimestamp)   // firstTimestamp 8B
+	wb.writeInt64(lastTimestamp)   // maxTimestamp 8B
+	wb.writeInt64(producerID)      // producerId 4B
+	wb.writeInt16(producerEpoch)   // producerEpoch 2B
+	wb.writeInt32(baseSequence)    // baseSequence 4B
+	wb.writeInt32(recordCount)     // RecordsLength
 	write(wb)
 }
 
@@ -552,17 +562,20 @@ func (wb *writeBuffer) writeRecord(attributes int8, baseTime time.Time, offset i
 	timestampDelta := msg.Time.Sub(baseTime)
 	offsetDelta := int64(offset)
 
-	wb.writeVarInt(int64(recordSize(&msg, timestampDelta, offsetDelta)))
-	wb.writeInt8(attributes)
-	wb.writeVarInt(int64(milliseconds(timestampDelta)))
-	wb.writeVarInt(offsetDelta)
+	// varint 序列化的格式 和protobuf一样
+	wb.writeVarInt(int64(recordSize(&msg, timestampDelta, offsetDelta))) // length varint
+	wb.writeInt8(attributes)                                             // 		attributes: int8 bit 0~7: unused
+	wb.writeVarInt(int64(milliseconds(timestampDelta)))                  // timestampDelta varlong
+	wb.writeVarInt(offsetDelta)                                          // offsetDelta varint
 
-	wb.writeVarBytes(msg.Key)
-	wb.writeVarBytes(msg.Value)
-	wb.writeVarArray(len(msg.Headers), func(i int) {
+	wb.writeVarBytes(msg.Key)   // keyLength varint(-1表示没有) key []byte
+	wb.writeVarBytes(msg.Value) // valueLength varint(-1表示没有) value []byte
+
+	// 写入head
+	wb.writeVarArray(len(msg.Headers), func(i int) { // headerLength varint
 		h := &msg.Headers[i]
-		wb.writeVarString(h.Key)
-		wb.writeVarBytes(h.Value)
+		wb.writeVarString(h.Key)  // headerKeyLength: varint headerKey: String
+		wb.writeVarBytes(h.Value) // headerValueLength: varint Value: byte[]
 	})
 }
 

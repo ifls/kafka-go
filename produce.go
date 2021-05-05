@@ -303,18 +303,23 @@ func (p produceResponsePartitionV7) writeTo(wb *writeBuffer) {
 }
 
 func (p *produceResponsePartitionV7) readFrom(r *bufio.Reader, sz int) (remain int, err error) {
+	// index => INT32 4B
 	if remain, err = readInt32(r, sz, &p.Partition); err != nil {
 		return
 	}
+	//error_code => INT16 2B
 	if remain, err = readInt16(r, remain, &p.ErrorCode); err != nil {
 		return
 	}
+	//base_offset => INT64 8B
 	if remain, err = readInt64(r, remain, &p.Offset); err != nil {
 		return
 	}
+	// log_append_time_ms => INT64 8B
 	if remain, err = readInt64(r, remain, &p.Timestamp); err != nil {
 		return
 	}
+	// log_start_offset => INT64 8B
 	if remain, err = readInt64(r, remain, &p.StartOffset); err != nil {
 		return
 	}

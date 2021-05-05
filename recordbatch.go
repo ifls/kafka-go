@@ -89,6 +89,7 @@ func (r *recordBatch) writeTo(wb *writeBuffer) {
 		releaseBuffer(r.compressed)
 	} else {
 		wb.writeRecordBatch(r.attributes, r.size, len(r.msgs), baseTime, lastTime, func(wb *writeBuffer) {
+			// 遍历， 写入所有records
 			for i, msg := range r.msgs {
 				wb.writeRecord(0, r.msgs[0].Time, int64(i), msg)
 			}

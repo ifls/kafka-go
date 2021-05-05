@@ -1161,6 +1161,7 @@ func (c *Conn) writeCompressedMessages(codec CompressionCodec, msgs ...Message) 
 			return expectZeroSize(readArrayWith(&c.rbuf, size, func(r *bufio.Reader, size int) (int, error) {
 				// Skip the topic, we've produced the message to only one topic,
 				// no need to waste resources loading it in memory.
+				// 跳过 topic name string, 不需要
 				size, err := discardString(r, size)
 				if err != nil {
 					return size, err
@@ -1203,6 +1204,7 @@ func (c *Conn) writeCompressedMessages(codec CompressionCodec, msgs ...Message) 
 
 				// The response is trailed by the throttle time, also skipping
 				// since it's not interesting here.
+				// 丢掉 throttle_time_ms 4B
 				return discardInt32(r, size)
 			}))
 		},
