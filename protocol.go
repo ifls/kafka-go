@@ -42,10 +42,13 @@ func (v ApiVersion) Format(w fmt.State, r rune) {
 type apiKey int16
 
 const (
-	produce                     apiKey = 0
-	fetch                       apiKey = 1
-	listOffsets                 apiKey = 2
-	metadata                    apiKey = 3
+	produce     apiKey = 0
+	fetch       apiKey = 1
+	listOffsets apiKey = 2
+	metadata    apiKey = 3
+
+	// 参考 https://blog.csdn.net/qq_37502106/article/details/80271800
+	// kafka不是完全同步，也不是完全异步，是一种ISR机制： 1. leader会维护一个与其基本保持同步的Replica列表，该列表称为ISR(in-sync Replica)
 	leaderAndIsr                apiKey = 4 // 内部api， client没用到
 	stopReplica                 apiKey = 5 // client没用到
 	updateMetadata              apiKey = 6 // client没用到

@@ -35,7 +35,7 @@ type Partition struct {
 	// Name of the topic that the partition belongs to, and its index in the
 	// topic.
 	Topic string
-	ID    int
+	ID    int // partition index
 
 	// Leader, replicas, and ISR for the partition.
 	Leader   Broker

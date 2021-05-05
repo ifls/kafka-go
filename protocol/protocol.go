@@ -55,24 +55,32 @@ const (
 	Produce ApiKey = 0 // 发布消息 http://kafka.apache.org/protocol.html#The_Messages_Produce
 	Fetch   ApiKey = 1 // 获取消息
 
+	Metadata    ApiKey = 3  // 获取元数据
+	ApiVersions ApiKey = 18 // 获取服务器支持的 指定 apikey的 版本
+
+	Heartbeat ApiKey = 12 // 组成员存活心跳， 超时会被踢出
+
+	// offset
 	ListOffsets  ApiKey = 2 // 列举多个topic偏移量
-	Metadata     ApiKey = 3 // 获取元数据
 	OffsetCommit ApiKey = 8 // 偏移量提交
 	OffsetFetch  ApiKey = 9 // 获取偏移量
 
+	// consumer groups
 	// http://zhongmingmao.me/2019/09/10/kafka-consumer-manage-tcp-connection/
-	FindCoordinator  ApiKey = 10 // 当消费者程序首次启动调用poll方法时，需要向Kafka集群（集群中的任意Broker）发送FindCoordinator请求
-	JoinGroup        ApiKey = 11 // 加入一个消费者组
-	Heartbeat        ApiKey = 12 // 组成员存活心跳， 超时会被踢出
-	LeaveGroup       ApiKey = 13 // 离开消费者组
-	SyncGroup        ApiKey = 14 // 组长使用此同步请求向当前组中的所有成员进行状态(例如分区信息)变更
-	DescribeGroups   ApiKey = 15 // 获取消费者组信息
-	ListGroups       ApiKey = 16 // admin 列举所有消费者组
+	FindCoordinator ApiKey = 10 // 当消费者程序首次启动调用poll方法时，需要向Kafka集群（集群中的任意Broker）发送FindCoordinator请求
+	JoinGroup       ApiKey = 11 // 加入一个消费者组
+	LeaveGroup      ApiKey = 13 // 离开消费者组
+	SyncGroup       ApiKey = 14 // 组长使用此同步请求向当前组中的所有成员进行状态(例如分区信息)变更
+	DescribeGroups  ApiKey = 15 // 获取消费者组信息
+	ListGroups      ApiKey = 16 // admin 列举所有消费者组
+
+	// 认证
 	SaslHandshake    ApiKey = 17 // Simple Authentication and Security Layer 握手认证
 	SaslAuthenticate ApiKey = 36 // 和sasl握手有什么区别？？
-	ApiVersions      ApiKey = 18 // 获取服务器支持的 指定 apikey的 版本
-	CreateTopics     ApiKey = 19 // 创建 topic
-	DeleteTopics     ApiKey = 20 // 删除topic
+
+	// topic
+	CreateTopics ApiKey = 19 // 创建 topic
+	DeleteTopics ApiKey = 20 // 删除topic
 
 	// 下面这几个可能用的到
 	// 配合消息的 sequence id 做 发布者消息幂等 https://news.51cto.com/art/202008/622979.htm
