@@ -76,6 +76,7 @@ func newRecordBatch(codec CompressionCodec, msgs ...Message) (r *recordBatch, er
 	return
 }
 
+// RecordBatch 序列化 参考 http://kafka.apache.org/documentation/#messageformat
 func (r *recordBatch) writeTo(wb *writeBuffer) {
 	wb.writeInt32(r.size)
 

@@ -74,7 +74,7 @@ type deleteTopicsRequestV0 struct {
 	// Timeout holds the time in ms to wait for a topic to be completely deleted
 	// on the controller node. Values <= 0 will trigger topic deletion and return
 	// immediately.
-	Timeout int32
+	Timeout int32 // 毫秒, 控制节点才能删除，
 }
 
 func (t deleteTopicsRequestV0) size() int32 {

@@ -186,6 +186,7 @@ func (h requestHeader) writeTo(wb *writeBuffer) {
 	wb.writeString(h.ClientID)
 }
 
+// todo 参考 http://kafka.apache.org/protocol.html#protocol_details 协议文件
 type request interface {
 	size() int32
 	writable

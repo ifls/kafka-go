@@ -1233,10 +1233,15 @@ func (c *Conn) writeRequestHeader(apiKey apiKey, apiVersion apiVersion, correlat
 	hdr.writeTo(&c.wb)
 }
 
+// 协议
+// RequestOrResponse => MessageSize 4B (RequestMessage | ResponseMessage)
+// RequestMessage => ApiKey2B ApiVersion2B CorrelationId4B ClientId 2+len(ClientId) Request
+// ResponseMessage => CorrelationId4B Response
+
 // 处理 kafka 网络协议， 发送请求
 func (c *Conn) writeRequest(apiKey apiKey, apiVersion apiVersion, correlationID int32, req request) error {
 	hdr := c.requestHeader(apiKey, apiVersion, correlationID)
-	hdr.Size = (hdr.size() + req.size()) - 4
+	hdr.Size = (hdr.size() + req.size()) - 4 // 为什么要 - 4 ??
 	hdr.writeTo(&c.wb)
 	req.writeTo(&c.wb)
 	return c.wbuf.Flush()

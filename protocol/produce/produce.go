@@ -12,8 +12,8 @@ func init() {
 
 type Request struct {
 	TransactionalID string         `kafka:"min=v3,max=v8,nullable"`
-	Acks            int16          `kafka:"min=v0,max=v8"`
-	Timeout         int32          `kafka:"min=v0,max=v8"`
+	Acks            int16          `kafka:"min=v0,max=v8"` // 表示需要多少个服务实例成功才 0表示不需要，1表示1个，-1表示所有
+	Timeout         int32          `kafka:"min=v0,max=v8"` // 等待响应的超时， 毫秒
 	Topics          []RequestTopic `kafka:"min=v0,max=v8"`
 }
 

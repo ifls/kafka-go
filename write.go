@@ -417,6 +417,7 @@ func (wb *writeBuffer) writeProduceRequestV3(correlationID int32, clientID, topi
 	return wb.Flush()
 }
 
+// 发送数据的 函数
 func (wb *writeBuffer) writeProduceRequestV7(correlationID int32, clientID, topic string, partition int32, timeout time.Duration, requiredAcks int16, transactionalID *string, recordBatch *recordBatch) (err error) {
 
 	h := requestHeader{
@@ -437,6 +438,8 @@ func (wb *writeBuffer) writeProduceRequestV7(correlationID int32, clientID, topi
 		recordBatch.size
 
 	h.writeTo(wb)
+
+	// v7 -> transactional_id acks timeout_ms [topic_data]
 	wb.writeNullableString(transactionalID)
 	wb.writeInt16(requiredAcks) // required acks
 	wb.writeInt32(milliseconds(timeout))
@@ -449,6 +452,7 @@ func (wb *writeBuffer) writeProduceRequestV7(correlationID int32, clientID, topi
 	wb.writeArrayLen(1)
 	wb.writeInt32(partition)
 
+	// 写入 RECORDS
 	recordBatch.writeTo(wb)
 
 	return wb.Flush()
